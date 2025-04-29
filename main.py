@@ -6,12 +6,10 @@ async def get_top_players(limit=50):
     API_URL = "https://osu.ppy.sh/api/v2"
     TOKEN_URL = "https://osu.ppy.sh/oauth/token"
     
-    # Замените эти значения на свои клиентские данные
     CLIENT_ID = "40346"
     CLIENT_SECRET = "Xoc2mJtfn6lLYC1PKxYfAbY4pCRLE1qEbLxcYeHT"
     
     async with aiohttp.ClientSession() as session:
-        # Получаем токен доступа
         token_data = {
             "client_id": CLIENT_ID,
             "client_secret": CLIENT_SECRET,
@@ -23,22 +21,19 @@ async def get_top_players(limit=50):
             token_response = await response.json()
             access_token = token_response["access_token"]
         
-        # Устанавливаем заголовок авторизации
         headers = {
             "Authorization": f"Bearer {access_token}",
             "Content-Type": "application/json"
         }
         
-        # Получаем топ игроков
         params = {
-            "mode": "osu",  # Режим игры (osu, taiko, fruits, mania)
+            "mode": "osu",
             "limit": limit
         }
         
         async with session.get(f"{API_URL}/rankings/osu/performance", headers=headers, params=params) as response:
             players_data = await response.json()
         
-        # Собираем статистику для каждого игрока
         players = []
         for player in players_data["ranking"]:
             player_info = {
@@ -48,7 +43,7 @@ async def get_top_players(limit=50):
                 "pp": round(player["pp"], 2),
                 "accuracy": round(player["hit_accuracy"], 2),
                 "play_count": player["play_count"],
-                "play_time": player["play_time"] // 3600,  # В часах
+                "play_time": player["play_time"] // 3600,  
                 "total_score": player["total_score"],
                 "ranked_score": player["ranked_score"],
                 "level": player["level"]["current"],
@@ -62,7 +57,6 @@ async def main():
     try:
         top_players = await get_top_players()
         
-        # Выводим результаты
         print("\nТоп 50 игроков osu! (режим osu!standard):")
         print("-" * 108)
         print(f"{'Ранг':<5} | {'Никнейм':<20} | {'Страна':<5} | {'PP':<8} | {'Точность':<8} | "
@@ -74,7 +68,6 @@ async def main():
                   f"{player['pp']:<8} | {player['accuracy']:<8}% | "
                   f"{player['play_count']:<6} | {player["play_time"]:<6} | {player["ranked_score"]:<16} | {player['level']:<7} | ")
         
-        # Выводим дополнительную статистику
         total_pp = sum(p["pp"] for p in top_players)
         avg_pp = sum(p["pp"] for p in top_players) / len(top_players)
         avg_accuracy = sum(p["accuracy"] for p in top_players) / len(top_players)
